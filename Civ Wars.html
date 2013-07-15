@@ -1,8 +1,9 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="mainstyle.css">
+<title>CW: Advanced Strategy</title>
 <script>
-//[int Owner, int Size]
+//[int Owner, int Size, int Production, int turnsToGrowth]
 //0 unowned
 //1 blu
 //2 red
@@ -10,23 +11,23 @@ var turnmarker=1
 var selected=[0,0,0]
 var gameBoard=[
 [
-[1,5],[0,0],[0,0],[0,0],[0,0]
+[1,5,5,3],[0,0,3,3],[0,0,1,5],[0,0,1,5],[0,0,0,1]
 ]
 ,
 [
-[0,0],[0,0],[0,0],[0,0],[0,0]
+[0,0,3,3],[0,0,2,4],[0,0,3,2],[0,0,2,3],[0,0,1,5]
 ]
 ,
 [
-[0,0],[0,0],[0,0],[0,0],[0,0]
+[0,0,1,5],[0,0,3,3],[0,0,5,1],[0,0,3,3],[0,0,1,5]
 ]
 ,
 [
-[0,0],[0,0],[0,0],[0,0],[0,0]
+[0,0,1,5],[0,0,2,3],[0,0,3,2],[0,0,2,4],[0,0,3,3]
 ]
 ,
 [
-[0,0],[0,0],[0,0],[0,0],[2,5]
+[0,0,0,1],[0,0,1,5],[0,0,1,5],[0,0,3,3],[2,5,5,3]
 ]
 
 ]
@@ -62,7 +63,7 @@ if(gameBoard[x][y][0]==1){
 coords=getCanvasCoords(x,y)
 
 //make space blue
-ctx.fillStyle="#00003F"
+ctx.fillStyle="#00007F"
 ctx.fillRect(coords[0],coords[1],coords[2],coords[3])
 
 //and put a blue number
@@ -76,7 +77,7 @@ if(gameBoard[x][y][0]==2){
 coords=getCanvasCoords(x,y)
 
 //make space red
-ctx.fillStyle="#3F0000"
+ctx.fillStyle="#7F0000"
 ctx.fillRect(coords[0],coords[1],coords[2],coords[3])
 
 //and put a red number
@@ -94,6 +95,14 @@ ctx.fillStyle="#3F3F3F"
 ctx.fillRect(coords[0],coords[1],coords[2],coords[3])
 }
 
+coords=getCanvasCoords(x,y)
+//and show production and ttg
+ctx.fillStyle="#007F00"
+ctx.fillText(String(gameBoard[x][y][2]),coords[0]+2,coords[1]+90)
+ctx.fillText(String(gameBoard[x][y][3]),coords[0]+80,coords[1]+90)
+ctx.strokeStyle="#000000"
+ctx.strokeRect(coords[0],coords[1],coords[2],coords[3])
+
 if(selected[0]==x && selected[1]==y && selected[2]==1){
 coords=getCanvasCoords(x,y)
 var grd=ctx.createRadialGradient(50+coords[0],50+coords[1],10,50+coords[0],50+coords[1],50);
@@ -103,10 +112,7 @@ ctx.fillStyle=grd
 
 ctx.fillRect(coords[0],coords[1],coords[2],coords[3])
 delete grd
-}
-}
-}
-}
+}}}}
 
 function checkContingent(x,y,reqOwner){
 var doup=1
@@ -136,11 +142,38 @@ return Boolean(result)
 }
 
 function EYT(){
+/*
+var bluePro;
+var redPro;
 for(var x=0;x<5;x++){
 for(var y=0;y<5;y++){
-if(gameBoard[x][y][0]!=0){
+if(gameBoard[x][y][0]==1){
+bluePro+=gameBoard[x][y][2]
+}
+if(gameBoard[x][y][0]==2){
+redPro+=gameBoard[x][y][2]
+}
+}}
+*/
+
+for(var x=0;x<5;x++){
+for(var y=0;y<5;y++){
+if(gameBoard[x][y][1]==0){
+gameBoard[x][y][0]=0
+}
+if(gameBoard[x][y][0]!=0 && gameBoard[x][y][1]<gameBoard[x][y][2]){
 gameBoard[x][y][1]++
-}}}
+}
+if(gameBoard[x][y][0]!=0 && gameBoard[x][y][3]>0){
+gameBoard[x][y][3]--
+}
+else if(gameBoard[x][y][0]!=0 && gameBoard[x][y][3]==0){
+gameBoard[x][y][2]++
+gameBoard[x][y][3]=5
+}
+
+}}
+
 if(turnmarker==1){turnmarker=2;document.getElementById('eytButton').style.color="red";}
 else{turnmarker=1;document.getElementById('eytButton').style.color="blue"}
 drawBoard();
@@ -174,7 +207,7 @@ else{
 
 //_*_*_*_*_*_*_*_*_*_*_*_*_*ATTACK*_*_*_*_*_*_*_*_*_*_*_*_*_
 
-  //target is gameBoard[clixyarr[0]][clixyarr[1]][1]
+	//target is gameBoard[clixyarr[0]][clixyarr[1]][1]
 	//attacker is gameBoard[selected[0]][selected[1]][1]
 
 //var armySize=Number(document.getElementById('armysize').value)
@@ -208,10 +241,12 @@ drawBoard();
 </head>
 <body>
 <canvas width=500 height=500 id="game" onclick="interpretClick(event);">Your browser does not support the <b>canvas</b> element. Try <a href="www.google.com/chrome">Google Chrome</a>.</canvas>
-<div class="colored" style="position:fixed;top:9px;left:520px;width:300px">
+<div class="colored" style="position:fixed;top:9px;left:520px;width:300px;">
 <button onclick="EYT();" id="eytButton" style="color:blue;">End Your Turn</button>
-<h5><b>How to play:</b></h5>
-<p>The goal of the game is to eliminate the other color. To do this, you must attack the other color's squares. In order to do <i>that</i>, you must have a bridge(per say) made of your own color. To create this bridge, you must expand into the gray spaces. This is done by left clicking one of your squares, then left clicking on an ajacent gray square. You will be asked how many troops to move, then they will move. You may do this as many times as you like on your turn, which is ended by clicking the End Your Turn button. When this happens, the button will change to the other color, and all of the controlled squares will increase their troop count by 1. If you attempt to move onto the other color's square, it will initiate a battle, in which the side with more troops wins, but subtracts troops, and the loser subtracts all of his/her troops.</p>
+<p> <b> <i>How to play: </i> </b> <br>The goal of the game is to eliminate the other color. To do this, you must attack the other color's squares. In order to do <i>that</i>, you must have a bridge(per say) made of your own color. To create this bridge, you must expand into the gray spaces. This is done by left clicking one of your squares, then left clicking on an ajacent gray square. You will be asked how many troops to move, then they will move. You may do this as many times as you like on your turn, which is ended by clicking the End Your Turn button. When this happens, the button will change to the other color, and all of the controlled squares will increase their troop count by 1. If you attempt to move onto the other color's square, it will initiate a battle, in which the side with more troops wins, but subtracts troops, and the loser subtracts all of his/her troops.</p>
+</div>
+<div class="colored" style="position:fixed;top:31px;left:829px;width:300px;">
+<p> <b> <i>Expansion Info: </i> <br> In Civilization Wars: Advanced Strategy</b>, a new army production system has been added. The green number in the lower left of each square is the maximum capacity of that square. If the number of troops in the square meets or exceeds this number, production will halt until more room is freed. The only way to increase this number is the occupy the square, and hold it until the green number in the bottom right reaches zero. At this point, the maximum capacity of the square will increase by one. If you liked this expansion, you should also try <b>Civilization Wars: From the Shadows</b></p>
 </div>
 <script>
 var theCanvas=document.getElementById("game")
