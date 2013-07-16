@@ -1,7 +1,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="mainstyle.css">
-<title>CW: Advanced Strategy</title>
+<title>CW: From the Shadows</title>
 <script>
 //[int Owner, int Size, int Production, int turnsToGrowth]
 //0 unowned
@@ -59,7 +59,7 @@ for(var x=0;x<5;x++){
 for(var y=0;y<5;y++){
 
 //if its blue
-if(gameBoard[x][y][0]==1){
+if(gameBoard[x][y][0]==1 && checkContingent(x,y,turnmarker,1)){
 coords=getCanvasCoords(x,y)
 
 //make space blue
@@ -73,7 +73,7 @@ ctx.fillText(String(gameBoard[x][y][1]),coords[0],coords[1]+20)
 
 }
 //if its red
-if(gameBoard[x][y][0]==2){
+else if(gameBoard[x][y][0]==2 && checkContingent(x,y,turnmarker,1)){
 coords=getCanvasCoords(x,y)
 
 //make space red
@@ -87,7 +87,7 @@ ctx.fillText(String(gameBoard[x][y][1]),coords[0],coords[1]+20)
 }
 
 //if its unowned
-if(gameBoard[x][y][0]==0){
+else if(gameBoard[x][y][0]==0 && checkContingent(x,y,turnmarker,1)){
 coords=getCanvasCoords(x,y)
 
 //make space gray
@@ -95,13 +95,24 @@ ctx.fillStyle="#3F3F3F"
 ctx.fillRect(coords[0],coords[1],coords[2],coords[3])
 }
 
+else{
 coords=getCanvasCoords(x,y)
+
+//make space gray
+ctx.fillStyle="#000000"
+ctx.fillRect(coords[0],coords[1],coords[2],coords[3])
+}
+
 //and show production and ttg
+if(checkContingent(x,y,turnmarker,1)){
+coords=getCanvasCoords(x,y)
+ctx.font="30px Georgia"
 ctx.fillStyle="#007F00"
 ctx.fillText(String(gameBoard[x][y][2]),coords[0]+2,coords[1]+90)
 ctx.fillText(String(gameBoard[x][y][3]),coords[0]+80,coords[1]+90)
 ctx.strokeStyle="#000000"
 ctx.strokeRect(coords[0],coords[1],coords[2],coords[3])
+}
 
 if(selected[0]==x && selected[1]==y && selected[2]==1){
 coords=getCanvasCoords(x,y)
@@ -114,7 +125,8 @@ ctx.fillRect(coords[0],coords[1],coords[2],coords[3])
 delete grd
 }}}}
 
-function checkContingent(x,y,reqOwner){
+function checkContingent(x,y,reqOwner,useCorner){
+if(useCorner==null){useCorner=0;}
 var doup=1
 var dodown=1
 var doleft=1
@@ -138,6 +150,22 @@ result=(result || gameBoard[x-1][y][0]==reqOwner)
 if(doright){
 result=(result || gameBoard[x+1][y][0]==reqOwner)
 }
+result=(result || gameBoard[x][y][0]==reqOwner)
+if(doup && doleft && useCorner){
+result=(result || gameBoard[x-1][y-1][0]==reqOwner)
+}
+if(doup && doright && useCorner){
+result=(result || gameBoard[x+1][y-1][0]==reqOwner)
+}
+if(dodown && doleft && useCorner){
+result=(result || gameBoard[x-1][y+1][0]==reqOwner)
+}
+if(dodown && doright && useCorner){
+result=(result || gameBoard[x+1][y+1][0]==reqOwner)
+}
+
+
+
 return Boolean(result)
 }
 
@@ -246,7 +274,7 @@ drawBoard();
 <p> <b> <i>How to play: </i> </b> <br>The goal of the game is to eliminate the other color. To do this, you must attack the other color's squares. In order to do <i>that</i>, you must have a bridge(per say) made of your own color. To create this bridge, you must expand into the gray spaces. This is done by left clicking one of your squares, then left clicking on an ajacent gray square. You will be asked how many troops to move, then they will move. You may do this as many times as you like on your turn, which is ended by clicking the End Your Turn button. When this happens, the button will change to the other color, and all of the controlled squares will increase their troop count by 1. If you attempt to move onto the other color's square, it will initiate a battle, in which the side with more troops wins, but subtracts troops, and the loser subtracts all of his/her troops.</p>
 </div>
 <div class="colored" style="position:fixed;top:31px;left:829px;width:300px;">
-<p> <b> <i>Expansion Info: </i> <br> In Civilization Wars: Advanced Strategy</b>, a new army production system has been added. The green number in the lower left of each square is the maximum capacity of that square. If the number of troops in the square meets or exceeds this number, production will halt until more room is freed. The only way to increase this number is the occupy the square, and hold it until the green number in the bottom right reaches zero. At this point, the maximum capacity of the square will increase by one. If you liked this expansion, you should also try <b>Civilization Wars: From the Shadows</b></p>
+<p> <b> <i>Expansion Info: </i> <br> In Civilization Wars: From the Shadows</b>, a new game mechanic is added that shrouds your en<!--Multiplayer coming soon! Promise!-->emy in the Fog of War. This has large strategic implementations, but only if your opponent does not watch you take your turn. For this reason very legitimate<sup> <i>[citation needed]</i> </sup> reason<sup> <i>[citation needed]</i> </sup>, internet<sup> <i>[citation needed]</i> </sup> multiplayer will<sup> <i>[citation needed]</i> </sup> be coming<sup> <i>[citation needed]</i> </sup> at some point<sup> <i>[citation needed]</i> </sup> in the <i>*cough* distant *cough*</i> future.</p>
 </div>
 <script>
 var theCanvas=document.getElementById("game")
